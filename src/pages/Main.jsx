@@ -14,6 +14,14 @@ function Main() {
       >
         공지사항 추가하기
       </button>
+
+      <button
+        type="button"
+        onClick={() => navigate('/md')}
+        className='bg-gray-500 text-white font-bold py-2 px-4 rounded ml-4'
+      >
+        MD 관리하기
+      </button>
     </div>
   );
 }
