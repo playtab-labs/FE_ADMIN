@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Main from './pages/main';
 import Notification from './pages/Notification';
+import NotiDetail from './pages/NotiDetail';
 import Login from './pages/Login';
 
 function App() {
@@ -9,6 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Main />} />
         <Route path="/notifications" element={<Notification />} />
+        <Route path="/notifications/:id" element={<NotiDetail />} />
         <Route path="/login" element={<Login />} />
       </Routes>
     </BrowserRouter>
