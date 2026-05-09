@@ -5,6 +5,7 @@ import Main from './pages/main';
 import Notification from './pages/Notification';
 import NotiDetail from './pages/NotiDetail';
 import MD from './pages/MD';
+import MDDetail from './pages/MDDetail';
 import Login from './pages/Login';
 
 function ProtectedRoute({ children }) {
@@ -26,6 +27,7 @@ function AppContent() {
         <Route path="/notifications" element={<ProtectedRoute><Notification /></ProtectedRoute>} />
         <Route path="/notifications/:id" element={<ProtectedRoute><NotiDetail /></ProtectedRoute>} />
         <Route path="/md" element={<ProtectedRoute><MD /></ProtectedRoute>} />
+        <Route path="/md/:id" element={<ProtectedRoute><MDDetail /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to={isLoggedIn ? '/' : '/login'} replace />} />
       </Routes>
     </>
