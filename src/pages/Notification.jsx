@@ -1,69 +1,39 @@
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import NotiList from '../components/NotiList';
-import { deleteNotice } from '../apis/noticeAPI';
-
-export const STORAGE_KEY = 'playtap_notiItems';
-
-const INITIAL_ITEMS = [
-  {
-    id: '1',
-    title: '[안내] 플레이탭 2026 공지사항 제목',
-    date: '2026.04.01',
-    content: '공지사항 내용이 들어가는 자리입니다. 자세한 내용은 본문을 확인해 주세요. 자세한 내용은 본문을 확인해 주세요. 자세한 내용은 본문을 확인해 주세요',
-    badge: 'NEW',
-  },
-  {
-    id: '2',
-    title: '[안내] 플레이탭 2026 공지사항 제목',
-    date: '2026.03.25',
-    content: '공지사항 내용이 들어가는 자리입니다. 자세한 내용은 본문을 확인해 주세요.',
-    badge: '필독',
-  },
-  {
-    id: '3',
-    title: '[안내] 플레이탭 2026 공지사항 제목',
-    date: '2026.03.10',
-    content: '공지사항 내용이 들어가는 자리입니다. 자세한 내용은 본문을 확인해 주세요.',
-  },
-  {
-    id: '4',
-    title: '[안내] 플레이탭 2026 공지사항 제목',
-    date: '2026.02.28',
-    content: '공지사항 내용이 들어가는 자리입니다. 자세한 내용은 본문을 확인해 주세요.',
-  },
-  {
-    id: '5',
-    title: '[안내] 플레이탭 2026 공지사항 제목',
-    date: '2026.02.14',
-    content: '공지사항 내용이 들어가는 자리입니다. 자세한 내용은 본문을 확인해 주세요.',
-  },
-];
-
-function loadItems() {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_ITEMS));
-      return INITIAL_ITEMS;
-    }
-    return JSON.parse(stored);
-  } catch {
-    return INITIAL_ITEMS;
-  }
-}
+import { getNotices, deleteNotice } from '../apis/noticeAPI';
 
 function Notification() {
   const navigate = useNavigate();
-  const [items, setItems] = useState(loadItems);
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const fetchNotices = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const data = await getNotices();
+      console.log('[getNotices] 응답:', data);
+      // contentPreview → content로 매핑해 NotiList와 호환
+      setItems(data.map((n) => ({ ...n, content: n.contentPreview })));
+    } catch (err) {
+      console.error('[getNotices] 오류:', err);
+      setError('공지사항을 불러오지 못했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchNotices();
+  }, [fetchNotices]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('공지사항을 삭제하시겠습니까?')) return;
     try {
       await deleteNotice(id);
-      const updated = items.filter((item) => String(item.id) !== String(id));
-      setItems(updated);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      setItems((prev) => prev.filter((item) => String(item.id) !== String(id)));
     } catch (err) {
       console.error('[deleteNotice] 오류:', err);
       alert(err.response?.data?.message ?? '삭제에 실패했습니다.');
@@ -89,11 +59,25 @@ function Notification() {
           </span>
         </div>
         <div className="px-4">
-          <NotiList
-            items={items}
-            onView={(id) => navigate(`/notifications/${id}`)}
-            onDelete={handleDelete}
-          />
+          {loading ? (
+            <div className="py-16 text-center text-gray-400 text-sm">불러오는 중...</div>
+          ) : error ? (
+            <div className="py-16 text-center">
+              <p className="text-sm text-red-400 mb-3">{error}</p>
+              <button
+                onClick={fetchNotices}
+                className="text-sm text-blue-500 hover:underline"
+              >
+                다시 시도
+              </button>
+            </div>
+          ) : (
+            <NotiList
+              items={items}
+              onView={(id) => navigate(`/notifications/${id}`)}
+              onDelete={handleDelete}
+            />
+          )}
         </div>
       </div>
     </div>

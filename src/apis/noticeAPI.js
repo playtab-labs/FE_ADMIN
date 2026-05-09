@@ -6,6 +6,7 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('playtap_token');
+  console.log('[api] token:', token ? token.slice(0, 30) + '...' : 'null');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -23,4 +24,43 @@ export const updateNotice = async (id, body) => {
 export const deleteNotice = async (id) => {
   const response = await api.delete(`/admin/notices/${id}`);
   return response.data;
+};
+
+export const getNoticeDetail = async (noticeId) => {
+  const response = await api.post('/graphql', {
+    query: `
+      query NoticeDetail($noticeId: ID!) {
+        noticeDetail(noticeId: $noticeId) {
+          id
+          title
+          content
+          postedAt
+          isPinned
+          imageUrl
+        }
+      }
+    `,
+    variables: { noticeId },
+  });
+  return response.data.data.noticeDetail;
+};
+
+export const getNotices = async () => {
+  const response = await api.post('/graphql', {
+    query: `
+      query Notices {
+        notices {
+          notices {
+            id
+            title
+            postedAt
+            isPinned
+            imageUrl
+            contentPreview
+          }
+        }
+      }
+    `,
+  });
+  return response.data.data.notices.notices;
 };
