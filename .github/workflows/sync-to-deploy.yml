@@ -1,0 +1,19 @@
+name: Sync to deploy repo
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to deploy repo
+        run: |
+          git remote add deploy https://x-token:${{ secrets.DEPLOY_REPO_TOKEN }}@github.com/wnsjun/FE_ADMIN_DEPLOY.git
+          git push deploy develop --force
