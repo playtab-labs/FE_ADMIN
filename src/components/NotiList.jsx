@@ -3,6 +3,18 @@ const BADGE_STYLES = {
   필독: 'bg-red-100 text-red-700',
 };
 
+// title/content가 다국어 객체일 수도 있고 문자열일 수도 있음
+const getText = (value) => {
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  return value.ko ?? value.en ?? Object.values(value)[0] ?? '';
+};
+
+const getDate = (item) => {
+  if (item.postedAt) return item.postedAt.slice(0, 10).replace(/-/g, '.');
+  return item.date ?? '';
+};
+
 function NotiList({ items, onView, onDelete }) {
   if (items.length === 0) {
     return (
@@ -26,10 +38,16 @@ function NotiList({ items, onView, onDelete }) {
                   {item.badge}
                 </span>
               )}
-              <span className="text-xs text-gray-400">{item.date}</span>
+              {item.isPinned && (
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700">고정</span>
+              )}
+              {item.isVisible === false && (
+                <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">비공개</span>
+              )}
+              <span className="text-xs text-gray-400">{getDate(item)}</span>
             </div>
-            <p className="text-sm font-medium text-gray-900 truncate">{item.title}</p>
-            <p className="text-sm text-gray-500 mt-0.5 line-clamp-2">{item.content}</p>
+            <p className="text-sm font-medium text-gray-900 truncate">{getText(item.title)}</p>
+            <p className="text-sm text-gray-500 mt-0.5 line-clamp-2">{getText(item.content)}</p>
           </button>
           <div className="flex items-center shrink-0 pt-1">
             <button

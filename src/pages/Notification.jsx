@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import NotiList from '../components/NotiList';
+import { deleteNotice } from '../apis/noticeAPI';
 
 export const STORAGE_KEY = 'playtap_notiItems';
 
@@ -56,11 +57,17 @@ function Notification() {
   const navigate = useNavigate();
   const [items, setItems] = useState(loadItems);
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm('공지사항을 삭제하시겠습니까?')) return;
-    const updated = items.filter((item) => item.id !== id);
-    setItems(updated);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    try {
+      await deleteNotice(id);
+      const updated = items.filter((item) => String(item.id) !== String(id));
+      setItems(updated);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch (err) {
+      console.error('[deleteNotice] 오류:', err);
+      alert(err.response?.data?.message ?? '삭제에 실패했습니다.');
+    }
   };
 
   return (
