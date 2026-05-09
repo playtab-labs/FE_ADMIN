@@ -44,10 +44,12 @@ function NotiDetail() {
 
   useEffect(() => {
     if (isNew) return;
-    setLoading(true);
-    setFetchError('');
-    getNoticeDetail(id)
-      .then((data) => {
+
+    const fetchDetail = async () => {
+      setLoading(true);
+      setFetchError('');
+      try {
+        const data = await getNoticeDetail(id);
         console.log('[getNoticeDetail] 응답:', data);
         setDetail(data);
         setForm({
@@ -60,12 +62,15 @@ function NotiDetail() {
           isVisible: data.isVisible ?? true,
           imageUrl: data.imageUrl ?? '',
         });
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('[getNoticeDetail] 오류:', err);
         setFetchError('공지사항을 불러오지 못했습니다.');
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDetail();
   }, [id, isNew]);
 
   const validate = () => {
