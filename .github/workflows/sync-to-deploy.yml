@@ -14,6 +14,8 @@ jobs:
           fetch-depth: 0
 
       - name: Push to deploy repo
+        env:
+          TOKEN: ${{ secrets.DEPLOY_REPO_TOKEN }}
         run: |
-          git remote add deploy https://x-token:${{ secrets.DEPLOY_REPO_TOKEN }}@github.com/wnsjun/FE_ADMIN_DEPLOY.git
+          git remote add deploy https://wnsjun:${TOKEN}@github.com/wnsjun/FE_ADMIN_DEPLOY.git
           git push deploy develop --force
