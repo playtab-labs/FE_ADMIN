@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import useAuthStore from '../stores/useAuthStore';
 
 const navLinkClass = ({ isActive }) =>
   `px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
@@ -7,7 +7,8 @@ const navLinkClass = ({ isActive }) =>
   }`;
 
 function Navbar() {
-  const { isLoggedIn, logout } = useAuth();
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+  const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
 
   const handleLogout = () => {

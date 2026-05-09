@@ -1,5 +1,5 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import useAuthStore from './stores/useAuthStore';
 import Navbar from './components/Navbar';
 import Main from './pages/main';
 import Notification from './pages/Notification';
@@ -7,19 +7,26 @@ import NotiDetail from './pages/NotiDetail';
 import MD from './pages/MD';
 import Login from './pages/Login';
 
+function ProtectedRoute({ children }) {
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+  return isLoggedIn ? children : <Navigate to="/login" replace />;
+}
+
 function AppContent() {
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
   const location = useLocation();
-  const hideNavbar = location.pathname === '/login';
+  const isLoginPage = location.pathname === '/login';
 
   return (
     <>
-      {!hideNavbar && <Navbar />}
+      {!isLoginPage && <Navbar />}
       <Routes>
-        <Route path="/" element={<Main />} />
-        <Route path="/notifications" element={<Notification />} />
-        <Route path="/notifications/:id" element={<NotiDetail />} />
-        <Route path="/md" element={<MD />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={isLoggedIn ? <Navigate to="/" replace /> : <Login />} />
+        <Route path="/" element={<ProtectedRoute><Main /></ProtectedRoute>} />
+        <Route path="/notifications" element={<ProtectedRoute><Notification /></ProtectedRoute>} />
+        <Route path="/notifications/:id" element={<ProtectedRoute><NotiDetail /></ProtectedRoute>} />
+        <Route path="/md" element={<ProtectedRoute><MD /></ProtectedRoute>} />
+        <Route path="*" element={<Navigate to={isLoggedIn ? '/' : '/login'} replace />} />
       </Routes>
     </>
   );
@@ -27,11 +34,9 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
-    </AuthProvider>
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
   );
 }
 
