@@ -1,15 +1,4 @@
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL,
-});
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('playtap_token');
-  console.log('[api] token:', token ? token.slice(0, 30) + '...' : 'null');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+import api from './instance';
 
 export const createNotice = async (body) => {
   const response = await api.post('/admin/notices', body);
