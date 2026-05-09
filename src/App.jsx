@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import useAuthStore from './stores/useAuthStore';
 import Navbar from './components/Navbar';
 import Main from './pages/main';
 import Notification from './pages/Notification';
@@ -8,12 +8,12 @@ import MD from './pages/MD';
 import Login from './pages/Login';
 
 function ProtectedRoute({ children }) {
-  const { isLoggedIn } = useAuth();
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
   return isLoggedIn ? children : <Navigate to="/login" replace />;
 }
 
 function AppContent() {
-  const { isLoggedIn } = useAuth();
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
 
@@ -34,11 +34,9 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <AppContent />
-      </BrowserRouter>
-    </AuthProvider>
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
   );
 }
 

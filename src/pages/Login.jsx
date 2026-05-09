@@ -1,21 +1,32 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import useAuthStore from '../stores/useAuthStore';
 
 function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const login = useAuthStore((s) => s.login);
   const [form, setForm] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    login();
-    navigate('/');
+    setError('');
+    setLoading(true);
+    try {
+      await login({ email: form.email, password: form.password });
+      navigate('/');
+    } catch (err) {
+      console.error('[login] 오류:', err);
+      setError(err.response?.data?.message ?? '로그인에 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -56,11 +67,16 @@ function Login() {
             />
           </div>
 
+          {error && (
+            <p className="text-sm text-red-500">{error}</p>
+          )}
+
           <button
             type="submit"
-            className="w-full py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors mt-2"
+            disabled={loading}
+            className="w-full py-2.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors mt-2 disabled:opacity-50"
           >
-            로그인
+            {loading ? '로그인 중...' : '로그인'}
           </button>
         </form>
       </div>
