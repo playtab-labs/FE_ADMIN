@@ -9,13 +9,13 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout source repo
+        uses: actions/checkout@v4
         with:
+          ref: develop
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Push to deploy repo
-        env:
-          TOKEN: ${{ secrets.DEPLOY_REPO_TOKEN }}
         run: |
-          git remote add deploy https://wnsjun:${TOKEN}@github.com/wnsjun/FE_ADMIN_DEPLOY.git
-          git push deploy develop --force
+          git push https://wnsjun:${{ secrets.DEPLOY_REPO_TOKEN }}@github.com/wnsjun/FE_ADMIN_DEPLOY.git HEAD:develop --force
