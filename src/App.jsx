@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import useAuthStore from './stores/useAuthStore';
 import Navbar from './components/Navbar';
-import Main from './pages/main';
+import Main from './pages/Main';
 import Notification from './pages/Notification';
 import NotiDetail from './pages/NotiDetail';
 import MD from './pages/MD';
